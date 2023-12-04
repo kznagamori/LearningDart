@@ -6,10 +6,10 @@ Dartで複数のファイルを使用したプログラムを作成する際の�
 以下のようなファイル構成を想定します：
 
 - `main.dart`: メインプログラムファイル
-- `greeting.dart`: カスタム関数を含む追加のDartファイル
+- `greetings.dart`: カスタム関数を含む追加のDartファイル
 
-### `greeting.dart` の作成
-まず、`greeting.dart` という新しいファイルを作成し、次のようなシンプルな関数を記述します：
+### `greetings.dart` の作成
+まず、`greetings.dart` という新しいファイルを作成し、次のようなシンプルな関数を記述します：
 
 ```dart
 // greeting.dart
@@ -21,18 +21,18 @@ String Greet(String name) {
 この関数は、引数として名前を受け取り、挨拶文を返します。
 
 ### `main.dart` の編集
-次に、`main.dart` を編集して `greeting.dart` をインポートし、`greet` 関数を使用します：
+次に、`main.dart` を編集して `greetings.dart` をインポートし、`greet` 関数を使用します：
 
 ```dart
 // main.dart
-import 'greeting.dart'; // 追加したファイルのインポート
+import 'greetings.dart'; // 追加したファイルのインポート
 
 void main() {
   var name = 'Dart';
   print(Greet(name)); // `greet`関数の使用
 }
 ```
-このコードでは、`greet` 関数を呼び出してコンソールに挨拶文を表示します。
+このコードでは、`Greet` 関数を呼び出してコンソールに挨拶文を表示します。
 
 ## プログラムの実行
 これらのファイルを同じディレクトリに配置した後、以下のコマンドを使ってプログラムを実行します：
@@ -41,7 +41,7 @@ void main() {
 dart run main.dart
 ```
 
-このコマンドを実行すると、`main.dart` が実行され、`greeting.dart` の`greet` 関数が呼び出されます。結果として、`"こんにちは、Dartさん!"` というメッセージがコンソールに表示されるはずです。
+このコマンドを実行すると、`main.dart` が実行され、`greetings.dart` の`Greet` 関数が呼び出されます。結果として、`"こんにちは、Dartさん!"` というメッセージがコンソールに表示されるはずです。
 
 ## 補足
 - ファイル構成やコードの複雑さに応じて、さらに多くのファイルやフォルダをプロジェクトに追加することができます。
