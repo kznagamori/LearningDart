@@ -13,8 +13,8 @@ Dartで複数のファイルを使用したプログラムを作成する際の�
 
 ```dart
 // greeting.dart
-String greet(String name) {
-  return "Hello, $name!";
+String Greet(String name) {
+  return "こんにちは、$nameさん!";
 }
 ```
 
@@ -29,7 +29,7 @@ import 'greeting.dart'; // 追加したファイルのインポート
 
 void main() {
   var name = 'Dart';
-  print(greet(name)); // `greet`関数の使用
+  print(Greet(name)); // `greet`関数の使用
 }
 ```
 このコードでは、`greet` 関数を呼び出してコンソールに挨拶文を表示します。
@@ -38,10 +38,10 @@ void main() {
 これらのファイルを同じディレクトリに配置した後、以下のコマンドを使ってプログラムを実行します：
 
 ```bash
-dart run .\main.dart
+dart run main.dart
 ```
 
-このコマンドを実行すると、`main.dart` が実行され、`greeting.dart` の`greet` 関数が呼び出されます。結果として、`"Hello, Dart!"` というメッセージがコンソールに表示されるはずです。
+このコマンドを実行すると、`main.dart` が実行され、`greeting.dart` の`greet` 関数が呼び出されます。結果として、`"こんにちは、Dartさん!"` というメッセージがコンソールに表示されるはずです。
 
 ## 補足
 - ファイル構成やコードの複雑さに応じて、さらに多くのファイルやフォルダをプロジェクトに追加することができます。

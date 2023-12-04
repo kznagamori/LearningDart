@@ -1,7 +1,7 @@
 // main.dart
-import 'greeting.dart';
+import 'greetings.dart';
 
 void main() {
   var name = 'Dart';
-  print(greet(name)); // `greet`関数の使用
+  print(Greet(name)); // `greet`関数の使用
 }
