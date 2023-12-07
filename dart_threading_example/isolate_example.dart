@@ -1,11 +1,3 @@
-# スレッド
-
-Dartでマルチスレッディングのような並行処理を行うには、`Isolate` を使用するのが一般的です。また、`Future` を使用した非同期処理もDartの並行処理の一形態です。以下に、それぞれのアプローチを用いたサンプルプログラムを示します。
-
-## サンプルプログラム
-以下のサンプルプログラムでは、複数の `Isolate` を起動し、それぞれが完了するのを待ち合わせます。
-**isolate_example.dart**
-```dart
 import 'dart:async';
 import 'dart:isolate';
 
@@ -80,35 +72,3 @@ Future<void> main() async {
     manager.close();
   });
 }
-```
-
-**future_example.dart**
-
-複数の非同期処理（ `Future` ）を起動し、すべてが完了するのを待ち合わせます。
-```dart
-import 'dart:async';
-
-Future<void> futureFunc1() async {
-  await Future.delayed(const Duration(seconds: 5));
-  print('futureFunc1');
-  // ここで処理を実装。
-}
-
-Future<void> futureFunc2() async {
-  await Future.delayed(const Duration(seconds: 2));
-  print('futureFunc2');
-  // ここで処理を実装。
-}
-
-void main() async {
-  // 関数の呼び出しをリストに追加
-  var futures = <Future<void>>[futureFunc1(), futureFunc2()];
-
-  // すべてのFutureが完了するのを待つ
-  await Future.wait(futures);
-
-  print('すべての非同期処理が完了しました。');
-}
-```
-
-`Isolate` を使用するパターンは、CPU集約型のタスクやメモリを共有しない並行処理に適しています。一方、`Future` を使用するパターンは、I/O操作や軽量な非同期処理に適しています。適切なアプローチは、アプリケーションの要件と処理の特性に基づいて選択してください。
