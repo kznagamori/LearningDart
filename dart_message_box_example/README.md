@@ -44,12 +44,35 @@ class IsolateManager {
   }
 }
 
-class MessagePort {
+class MessagePort<T> {
   SendPort sendPort;
   ReceivePort receivePort;
-  Stream? broadcastStream;
-  MessagePort(this.sendPort, this.receivePort) {
-    broadcastStream = receivePort.asBroadcastStream();
+  Stream broadcastStream;
+  MessagePort(this.sendPort, this.receivePort, this.broadcastStream);
+
+  void send(T message) {
+    sendPort.send(message);
+  }
+
+  Future<T> received(int timeoutMilliseconds) async {
+    var completer = Completer<T>();
+    var timer = Timer(Duration(milliseconds: timeoutMilliseconds), () {
+      if (!completer.isCompleted) {
+        completer.completeError(TimeoutException(
+            'Timeout after $timeoutMilliseconds milliseconds'));
+      }
+    });
+    broadcastStream.listen((dynamic message) {
+      if (!completer.isCompleted) {
+        timer.cancel();
+        completer.complete(message as T);
+      }
+    });
+    return completer.future;
+  }
+
+  void close() {
+    receivePort.close();
   }
 }
 
@@ -75,80 +98,57 @@ class MessageBoxMaster<T> {
     var ready = await broadcastStream.first;
     if (ready != 'ready') {
       throw Exception('Isolate is not ready');
-    } else {
-      print('Receive ready from isolate');
     }
-    _slavePorts[mng] = MessagePort(sendPort, receivePort);
+    _slavePorts[mng] =
+        MessagePort(sendPort, receivePort, receivePort.asBroadcastStream());
   }
 
   void send(IsolateManager mng, T message) {
-    _slavePorts[mng]?.sendPort.send(message);
+    _slavePorts[mng]?.send(message);
+  }
+
+  void sendBroadcast(T message) {
+    _slavePorts.forEach((key, value) {
+      value.send(message);
+    });
   }
 
   Future<T> received(IsolateManager mng, int timeoutMilliseconds) async {
-    var completer = Completer<T>();
-    var timer = Timer(Duration(milliseconds: timeoutMilliseconds), () {
-      if (!completer.isCompleted) {
-        completer.completeError(TimeoutException(
-            'Timeout after $timeoutMilliseconds milliseconds'));
-      }
-    });
-    _slavePorts[mng]?.broadcastStream?.listen((dynamic message) {
-      if (!completer.isCompleted) {
-        timer.cancel();
-        completer.complete(message as T);
-      }
-    });
-    return completer.future;
+    return await _slavePorts[mng]?.received(timeoutMilliseconds);
   }
 
   void close() {
     _slavePorts.forEach((key, value) {
-      value.receivePort.close();
+      value.close();
     });
   }
 }
 
 class MessageBoxSlave<T> {
   final SendPort _msgPort;
-  late final SendPort _sendPort;
-  late final ReceivePort _receivePort;
-  late final Stream _broadcastStream;
+  late final MessagePort _masterPort;
 
   MessageBoxSlave(this._msgPort);
 
   Future<void> init() async {
-    _receivePort = ReceivePort();
-    _broadcastStream = _receivePort.asBroadcastStream();
-    _msgPort.send(_receivePort.sendPort);
-    _sendPort = await _broadcastStream.first as SendPort;
+    ReceivePort receivePort = ReceivePort();
+    Stream broadcastStream = receivePort.asBroadcastStream();
+    _msgPort.send(receivePort.sendPort);
+    SendPort sendPort = await broadcastStream.first as SendPort;
     _msgPort.send('ready');
+    _masterPort = MessagePort(sendPort, receivePort, broadcastStream);
   }
 
   void send(T message) {
-    _sendPort.send(message);
+    _masterPort.send(message);
   }
 
   Future<T> received(int timeoutMilliseconds) async {
-    Completer<T> completer = Completer();
-    var timer = Timer(Duration(milliseconds: timeoutMilliseconds), () {
-      if (!completer.isCompleted) {
-        completer.completeError(TimeoutException(
-            'Timeout after $timeoutMilliseconds milliseconds'));
-      }
-    });
-
-    _broadcastStream.listen((dynamic message) {
-      if (!completer.isCompleted) {
-        timer.cancel();
-        completer.complete(message as T);
-      }
-    });
-    return completer.future;
+    return await _masterPort.received(timeoutMilliseconds);
   }
 
   void close() {
-    _receivePort.close();
+    _masterPort.close();
   }
 }
 
@@ -246,10 +246,31 @@ Future<void> main() async {
 }
 ```
 
-このプログラムでは、以下の処理が行われています：
+## IsolateManager クラス
+このクラスは、`Isolate` の生成と管理を担当します。`Completer` を使用して、`Isolate`の終了を非同期に待ち受けます。
 
-1. `messageBox` 関数は、タイムアウト機能付きでメッセージボックスの動作をシミュレートします。メッセージとともに `SendPort` をワーカー `Isolate` に送信し、ワーカーからの応答を待機します。
-2. `worker` 関数はワーカー `Isolate` で実行され、メイン `Isolate` からのメッセージを受け取ったら処理を完了します。
-3. メイン `Isolate` では、複数のワーカー `Isolate` を生成し、各 `Isolate` にメッセージを送信します。`Future.wait` を使用してすべてのワーカー `Isolate` の処理が完了するのを待ち合わせます。
+- `join` メソッドは、`Isolate` の完了を待ちます。
+- `close` メソッドは、使用されている `ReceivePort` を閉じます。
 
-このサンプルコードは、Dartの `Isolate` を使用して複数のスレッド間でメッセージボックスのような通信を行う方法を示しています。ただし、実際のGUIベースのメッセージボックスとは異なり、コンソール上でのシミュレーションになります。また、Isolate間でのメモリ共有はできないため、データの共有や排他制御はメッセージパッシングを通じて行われます。
+## MessagePort クラス
+`MessagePort` は、`SendPort` と `ReceivePort` をカプセル化し、メッセージの送受信を容易にします。
+
+## MessageBoxMaster クラス
+このシングルトンクラスは、すべての `IsolateManager` インスタンスに関連付けられた `MessagePort` を保持し、メッセージの送受信を管理します。
+
+- `init` メソッドは、`IsolateManager` を初期化し、必要な `SendPort` と `ReceivePort` を設定します。
+- `send` メソッドは、指定された `IsolateManager` にメッセージを送信します。
+- `received` メソッドは、指定された `IsolateManager` からメッセージを受信します。
+
+
+## MessageBoxSlave クラス
+各 `Isolate` 内で使用されるこのクラスは、メイン `Isolate` との間のメッセージの送受信を担当します。
+
+- `init` メソッドは、`SendPort` と `ReceivePort` を設定し、`Isolate` が準備完了であることをメイン `Isolate` に通知します。
+- `send` および `received` メソッドは、メイン `Isolate` との間でメッセージを送受信します。
+
+## Isolateのエントリポイント関数
+`isolateFunc1` と `isolateFunc2` は、異なる `Isolate` で実行される関数です。これらの関数は、`MessageBoxSlave` を使用してメイン `Isolate` と通信します。
+
+## main 関数
+プログラムのエントリポイントです。`IsolateManager` のインスタンスを作成し、`MessageBoxMaster` を介して `Isolate` と通信します。各 `Isolate` の終了を待ち、プログラムが完了したことを出力します。
