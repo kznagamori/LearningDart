@@ -13,7 +13,7 @@ void main() {
   numbers.sort();
   print(numbers); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-// 偶数のみ抽出して、それぞれを二乗
+  // 偶数のみ抽出して、それぞれを二乗
   var evenSquared = numbers.where((n) => n.isEven).map((n) => n * n);
   print(evenSquared); // (4, 16, 36, 64, 100)
 }

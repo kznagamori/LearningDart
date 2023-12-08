@@ -15,6 +15,7 @@ Dart学習用レポジトリ
 - [一般的なエラー処理](./dart_error_handling/README.md)
 - [各型のstring formatの組み合わせ](./dart_string_format/README.md)
 - [ジェネリック機能](./dart_generics_example/README.md)
+- [ラムダ式](./dart_lambda_example/README.md)
 - [C#みたいなLINQ機能](./dart_linq_example/README.md)
 
 ## アルゴリズムとデータ構造
