@@ -11,9 +11,11 @@ Dart学習用レポジトリ
 - [パブリックなクラスのメンバ、メソッドを定義とプライベートなクラスのメンバ、メソッドを定義する](./dart_public_private/README.md)
 - [クラスの継承を実現する](./dart_inherit_class/README.md)
 - [クラスのインタフェースを使用したポリモーフィズムの実現](./dart_poly_class/README.md)
-- [クラスC#みたいなプロパティを定義、使用](./dart_class_property/README.md)
+- [C#みたいなクラスのプロパティを定義、使用](./dart_class_property/README.md)
 - [一般的なエラー処理](./dart_error_handling/README.md)
 - [各型のstring formatの組み合わせ](./dart_string_format/README.md)
+- [ジェネリック機能](./dart_generics_example/README.md)
+- [C#みたいなLINQ機能](./dart_linq_example/README.md)
 
 ## アルゴリズムとデータ構造
 - [リンクドリスト構造](./dart_linked_list/README.md)
