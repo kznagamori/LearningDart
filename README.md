@@ -38,5 +38,5 @@ Dart学習用レポジトリ
 - [スレッド](./dart_threading_example/README.md)
 - [Async/Await](./dart_async_await_example/README.md)
 - [排他処理](./dart_mutex_example/README.md)
-- [メッセージボックス](./dart_message_box_example/)
+- [メッセージボックス](./dart_message_box_example/README.md)
 
