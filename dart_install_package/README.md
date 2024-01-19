@@ -31,16 +31,16 @@ dart pub get
 ```
 ### 2. GitHubにパッケージを登録
 #### 2.1. GitHubにリポジトリを作成:
-1. GitHubで新しいリポジトリを作成します（例：`my_package`）。
+- GitHubで新しいリポジトリを作成します（例：`my_package`）。
 
-2. ローカルリポジトリの初期化とコミット:
+### 2.2. ローカルリポジトリの初期化とコミット:
 ```bash
 git init
 git add .
 git commit -m "Initial commit"
 ```
-3. GitHubリポジトリとのリンク:
-GitHubリポジトリのURLを使用してローカルリポジトリをリモートリポジトリにリンクします。
+### 2.3. GitHubリポジトリとのリンク:
+- GitHubリポジトリのURLを使用してローカルリポジトリをリモートリポジトリにリンクします。
 ```bash
 git remote add origin [GitHubリポジトリのURL]
 git push -u origin master
